@@ -1,0 +1,50 @@
+#!/usr/bin/env groovy
+
+import groovy.json.*
+
+// this guarantees the node will use this template
+ def label = "pdf-creator-pod-${UUID.randomUUID().toString()}"
+
+SLACK_CHANNEL = 'ingest-robots'
+SGK_APP = "contributed-content-pdf-creator"
+SGK_ENV = ENVIRONMENT
+K8S_NAMESPACE = 'sequoia'
+EKS_CLUSTER = 'integration'
+
+if (ENVIRONMENT == 'prod') {
+    EKS_CLUSTER = 'production'
+}
+
+def service_name(app_name, git_commit_short) {
+    return "${app_name}-${git_commit_short}-${UUID.randomUUID().toString().substring(0, 6)}-${env.BUILD_NUMBER}"
+}
+
+def notifySlack(buildStatus) {
+  
+}
+
+/**
+ * Make a Kubernetes Call to post to a pre-created app in k8s
+ * Do not try to check for deployment as the last step as this is a quick running job
+ * no return
+ */
+def initiateK8s(ENVIRONMENT='test', APP_NAME='', IMAGE='', K8S_NAMESPACE='sequoia', DEPLOY_USER='jenkins') {
+   
+}
+
+def undeployK8s(ENVIRONMENT='test', APP_NAME='', IMAGE='', K8S_NAMESPACE='sequoia', DEPLOY_USER='jenkins') {
+   
+}
+
+private void prepareJenkinsFile(IMAGE, DEPLOY_USER, APP_NAME, ENVIRONMENT) {
+    String deploymentContents = readFile "k8s/job.yaml"
+    String deployYaml = deploymentContents.replaceAll('##BUILD##', BUILD_NUMBER)
+    deployYaml = deployYaml.replaceAll('##DOCKER_IMAGE##', IMAGE)
+    deployYaml = deployYaml.replaceAll('##DEPLOY_USER##', DEPLOY_USER.replaceAll("\\s", "_"))
+    deployYaml = deployYaml.replaceAll('##SERVICE_NAME##', APP_NAME)
+    deployYaml = deployYaml.replaceAll('##ENVIRONMENT##', SGK_ENV)
+    deployYaml = deployYaml.replaceAll('##LOGGING##', SGK_APP + "-docker")
+
+
+    println "DEPLOYMENT FILE AFTER BUILD REPLACE: \n◥ ITHAKA ==========\n ${deployYaml}."
+}
